@@ -13,6 +13,7 @@ This directory contains five interactive Jupyter notebooks designed for in-depth
 | [`03_combinatorial_interactions_norman2019.ipynb`](03_combinatorial_interactions_norman2019.ipynb) | Genetic Epistasis & Combinatorial Synergy | `norman_2019_ready2train.h5ad` | Combinatorial dual-gene activation with CRISPRa (dCas9-VPR), on-target overexpression, linear additivity ($\Delta A + \Delta B$) vs observed epistasis ($\Delta_{AB}$), and erythroid lineage TFs. |
 | [`04_genome_wide_and_cross_cell_line_replogle2022.ipynb`](04_genome_wide_and_cross_cell_line_replogle2022.ipynb) | Scaling & Cross-Cell-Line Transfer | `replogle_k562_essential`, `replogle_rpe1`, `replogle_k562_gwps` | Core vs cell-type specific essentiality, memory-safe backed streaming, 2,055 shared perturbations between K562 (leukemia) and RPE1 (retinal epithelial), and GWPS feature selection. |
 | [`05_benchmark_task_and_baselines_walkthrough.ipynb`](05_benchmark_task_and_baselines_walkthrough.ipynb) | Benchmark Task & Literature Baselines | `dixit_2016_ready2train.h5ad` | Memory-safe PyTorch `PerturbationDataset` & `DataLoader`, ground-truth test evaluation, Top-20 DE genes, Control Mean baseline, Mean Shift baseline, and benchmark metrics table. |
+| [`06_biotransfer_model_exploration_and_results.ipynb`](06_biotransfer_model_exploration_and_results.ipynb) | BioTransfer Model Exploration & Results | All 5 datasets, K562 -> RPE1 transfer | Interactive inference on trained `BioTransferNet` & `BioTransferTranslator`, ESM-2 protein language manifold (PCA), biological pathway conservation, per-target Top-20 DE diagnostics, and population error reduction. |
 
 ---
 
@@ -24,6 +25,7 @@ This directory contains five interactive Jupyter notebooks designed for in-depth
    - `03_`: Understand combinatorial interactions and why predicting 2-gene perturbations requires modeling epistasis beyond linear sums.
 3. **Explore Scale & Transfer with `04_`**: Learn how to handle multi-gigabyte datasets without RAM exhaustion and examine transferability between cancer and normal cells.
 4. **Build Baselines with `05_`**: Complete end-to-end benchmark walkthrough implementing the literature-standard evaluation harness before training deep learning architectures.
+5. **Explore Trained Models & Results with `06_`**: Interactively query any perturbation target, inspect ESM-2 biological embeddings, evaluate cross-cell screen translation (K562 -> RPE1), and explore the paper benchmark results.
 
 ---
 
