@@ -1,0 +1,20 @@
+[
+  {
+    "Dataset":"dixit",
+    "Model":"Control Mean",
+    "Pearson \u03c1 (All)":0.9995074454,
+    "MSE (All)":0.0001325083,
+    "Pearson \u03c1 (Top-20 DE)":0.9939589924,
+    "MSE (Top-20 DE)":0.0080927641,
+    "N Test Targets":4
+  },
+  {
+    "Dataset":"dixit",
+    "Model":"Mean Shift",
+    "Pearson \u03c1 (All)":0.9995578931,
+    "MSE (All)":0.000118584,
+    "Pearson \u03c1 (Top-20 DE)":0.995293963,
+    "MSE (Top-20 DE)":0.0061394188,
+    "N Test Targets":4
+  }
+]

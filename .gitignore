@@ -216,3 +216,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# macOS
+.DS_Store
+
+# Large datasets and Perturb-seq h5ad packages (stored locally / Zenodo)
+*.h5ad
+data/*.h5ad
+
+# Model checkpoints and weights
+*.pt
+*.pth
+results/checkpoints/

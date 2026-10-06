@@ -1,0 +1,14 @@
+# Configuration for training ResidualMLP perturbation model
+dataset: "dixit"          # dixit | adamson | norman | replogle_k562_essential
+epochs: 10
+batch_size: 128           # 64 - 256 recommended for Apple Silicon unified memory
+lr: 0.001
+weight_decay: 0.0001
+embedding_dim: 128
+hidden_dims:
+  - 256
+  - 512
+dropout: 0.1
+device: "auto"            # auto | mps | cuda | cpu
+out_dir: "results/checkpoints"
+seed: 0

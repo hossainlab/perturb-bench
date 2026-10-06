@@ -1,0 +1,4 @@
+# Configuration for running standard benchmark baselines
+dataset: "dixit"          # dixit | adamson | norman | replogle_k562_essential | all
+out_dir: "results/baselines"
+seed: 0
