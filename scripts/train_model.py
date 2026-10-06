@@ -4,18 +4,18 @@ import argparse
 import json
 import time
 from pathlib import Path
-import numpy as np
+
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
-from perturb_bench.utils.seed import set_seed
-from perturb_bench.utils.device import get_device
-from perturb_bench.data.loader import load_dataset, get_control_mean
 from perturb_bench.data.dataset import create_dataloaders
-from perturb_bench.models.mlp import PerturbationResidualMLP
+from perturb_bench.data.loader import get_control_mean, load_dataset
 from perturb_bench.evaluation.benchmark import BenchmarkHarness
+from perturb_bench.models.mlp import PerturbationResidualMLP
+from perturb_bench.utils.device import get_device
+from perturb_bench.utils.seed import set_seed
 
 
 def train_epoch(model, train_loader, optimizer, criterion, device):
@@ -88,7 +88,7 @@ def main():
     print(f"Loaded: {adata.shape[0]:,} cells x {adata.shape[1]:,} genes")
 
     ctrl_mean = get_control_mean(adata)
-    train_loader, val_loader, test_loader, pert2idx, idx2pert = create_dataloaders(
+    train_loader, val_loader, test_loader, pert2idx, _ = create_dataloaders(
         adata, batch_size=args.batch_size
     )
     print(f"Unique perturbations in vocabulary: {len(pert2idx):,}")

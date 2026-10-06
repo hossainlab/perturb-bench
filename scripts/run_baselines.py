@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 """CLI tool to evaluate benchmark baselines across Perturb-seq datasets."""
 import argparse
-import json
 from pathlib import Path
+
 import pandas as pd
 
-from perturb_bench.utils.seed import set_seed
-from perturb_bench.data.loader import load_dataset, list_available_datasets
-from perturb_bench.models.baselines import ControlMeanPredictor, MeanShiftPredictor
+from perturb_bench.data.loader import list_available_datasets, load_dataset
 from perturb_bench.evaluation.benchmark import BenchmarkHarness
+from perturb_bench.models.baselines import ControlMeanPredictor, MeanShiftPredictor
+from perturb_bench.utils.seed import set_seed
 
 
 def run_benchmark_on_dataset(dataset_name: str, out_dir: Path) -> pd.DataFrame:
-    print(f"\n========================================================")
+    print("\n========================================================")
     print(f"Running Baselines on: {dataset_name}")
-    print(f"========================================================")
+    print("========================================================")
 
     # 1. Load dataset with standardized audit fixes
     adata = load_dataset(dataset_name)
@@ -49,7 +49,7 @@ def run_benchmark_on_dataset(dataset_name: str, out_dir: Path) -> pd.DataFrame:
 
     results_df.to_json(json_path, orient="records", indent=2)
     results_df.to_csv(csv_path, index=False)
-    print(f"\nSaved metrics to:")
+    print("\nSaved metrics to:")
     print(f"  {json_path}")
     print(f"  {csv_path}")
 
