@@ -1,10 +1,9 @@
-"""Generate publication-ready figures for the BioTransfer paper.
+"""Generate high-quality, publication-ready figures for the BioTransfer paper.
 
-Generates:
-1. fig1_benchmark_performance.png: Multi-panel bar plots comparing BioTransfer vs all baselines.
-2. fig2_dual_zero_shot_scatter.png: Per-perturbation scatter plots showing error reduction.
-3. fig3_pathway_conservation_landscape.png: Biological pathway divergence & conservation analysis.
-4. fig4_error_reduction_distribution.png: Distribution of MSE reductions across all 308 unseen genes.
+Adheres strictly to Nature / Cell / Science figure formatting standards:
+- Subplot panel labels are bold lowercase: 'a', 'b', 'c' (not uppercase).
+- Clean tick locators and no overlapping text or matplotlib warnings.
+- Okabe-Ito accessible color palettes and consistent 300 DPI rendering.
 """
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -13,13 +12,13 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-# Set publication style
+# Configure publication typography and aesthetics
 plt.rcParams.update({
     "font.family": "sans-serif",
     "font.sans-serif": ["Helvetica", "Arial", "DejaVu Sans"],
     "font.size": 11,
     "axes.labelsize": 12,
-    "axes.titlesize": 13,
+    "axes.titlesize": 12,
     "xtick.labelsize": 10,
     "ytick.labelsize": 10,
     "legend.fontsize": 10,
@@ -34,8 +33,22 @@ OUT_DIR = Path("results/paper_figures")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def plot_benchmark_performance():
-    """Figure 1: Benchmark Performance Bar Charts across Scenarios."""
+def add_panel_label(ax, label: str, x: float = -0.12, y: float = 1.08):
+    """Add bold lowercase panel label (e.g., 'a', 'b') in Nature journal style."""
+    ax.text(
+        x,
+        y,
+        label,
+        transform=ax.transAxes,
+        fontsize=16,
+        fontweight="bold",
+        va="top",
+        ha="left",
+    )
+
+
+def plot_fig1_benchmark_performance():
+    """Figure 1: Cross-Cell Transfer Benchmark Performance."""
     csv_path = Path("results/cross_cell/cross_cell_benchmark_summary.csv")
     if not csv_path.exists():
         print(f"File not found: {csv_path}")
@@ -43,16 +56,14 @@ def plot_benchmark_performance():
 
     df = pd.read_csv(csv_path)
 
-    # Clean scenario names
     scenario_map = {
-        "Task_1_K562_OOD_Test": "Task 1: K562 Unseen OOD Knockouts (N=308)",
-        "Task_2_RPE1_Transfer_TrainPerts": "Task 2: RPE1 Transfer of Screened Genes (N=1,542)",
-        "Task_3_RPE1_Dual_ZeroShot_TestPerts": "Task 3: Dual Zero-Shot RPE1 Unseen Genes (N=308)",
+        "Task_1_K562_OOD_Test": "Task 1: K562 Unseen OOD\nKnockouts (N=308)",
+        "Task_2_RPE1_Transfer_TrainPerts": "Task 2: RPE1 Transfer of\nScreened Genes (N=1,542)",
+        "Task_3_RPE1_Dual_ZeroShot_TestPerts": "Task 3: Dual Zero-Shot\nRPE1 Unseen Genes (N=308)",
     }
     df["Scenario_Clean"] = df["Scenario"].map(scenario_map)
 
-    # Color palette
-    colors = {
+    palette = {
         "Control Mean": "#8E9AA8",
         "Mean Shift": "#5B84B1",
         "Naive K562 Shift Copy": "#E69F00",
@@ -60,45 +71,45 @@ def plot_benchmark_performance():
         "BioTransferTranslator (Screen Translation)": "#D55E00",
     }
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5.5))
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5.2))
 
-    # Panel A: Pearson Correlation (Top-20 DE)
+    # Panel a: Pearson Correlation
     ax = axes[0]
+    add_panel_label(ax, "a")
     sns.barplot(
         data=df,
         x="Scenario_Clean",
         y="pearson_top20_de",
         hue="Model",
-        palette=colors,
+        palette=palette,
         ax=ax,
         edgecolor="black",
-        linewidth=0.8,
+        linewidth=0.7,
     )
-    ax.set_title("A. Top-20 DE Genes Pearson Correlation (Higher is Better)", fontweight="bold", pad=12)
-    ax.set_ylabel("Pearson Correlation ($\\rho$)")
+    ax.set_title("Top-20 DE genes Pearson correlation", pad=12, fontweight="medium")
+    ax.set_ylabel("Pearson correlation ($\\rho$)")
     ax.set_xlabel("")
     ax.set_ylim(0.75, 1.01)
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=18, ha="right")
-    ax.grid(axis="y", linestyle="--", alpha=0.4)
-    ax.legend(title="Method", frameon=True, facecolor="white", framealpha=0.9)
+    ax.grid(axis="y", linestyle="--", alpha=0.35)
+    ax.legend(title="Method", frameon=True, facecolor="white", framealpha=0.9, loc="lower left")
 
-    # Panel B: Mean Squared Error (Top-20 DE)
+    # Panel b: Mean Squared Error
     ax = axes[1]
+    add_panel_label(ax, "b")
     sns.barplot(
         data=df,
         x="Scenario_Clean",
         y="mse_top20_de",
         hue="Model",
-        palette=colors,
+        palette=palette,
         ax=ax,
         edgecolor="black",
-        linewidth=0.8,
+        linewidth=0.7,
     )
-    ax.set_title("B. Top-20 DE Genes Mean Squared Error (Lower is Better)", fontweight="bold", pad=12)
-    ax.set_ylabel("Mean Squared Error (MSE)")
+    ax.set_title("Top-20 DE genes mean squared error", pad=12, fontweight="medium")
+    ax.set_ylabel("Mean squared error (MSE)")
     ax.set_xlabel("")
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=18, ha="right")
-    ax.grid(axis="y", linestyle="--", alpha=0.4)
+    ax.grid(axis="y", linestyle="--", alpha=0.35)
     ax.legend().remove()
 
     plt.tight_layout()
@@ -108,8 +119,8 @@ def plot_benchmark_performance():
     print(f"Saved: {out_path}")
 
 
-def plot_dual_zero_shot_scatter():
-    """Figure 2: Head-to-Head Per-Perturbation Error Reduction on Unseen Genes."""
+def plot_fig2_dual_zero_shot_scatter():
+    """Figure 2: Per-Target Head-to-Head Error Reduction on Unseen Genes."""
     trans_csv = Path("results/cross_cell/dual_zero_shot_translator_breakdown.csv")
     copy_csv = Path("results/cross_cell/dual_zero_shot_naive_copy_breakdown.csv")
 
@@ -119,49 +130,52 @@ def plot_dual_zero_shot_scatter():
 
     df_tr = pd.read_csv(trans_csv)
     df_cp = pd.read_csv(copy_csv)
-
     merged = pd.merge(df_tr, df_cp, on="perturbation", suffixes=("_translator", "_naive_copy"))
 
-    fig, axes = plt.subplots(1, 2, figsize=(13, 5.5))
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5.2))
 
-    # Panel A: Correlation Comparison
+    # Panel a: Pearson Correlation
     ax = axes[0]
+    add_panel_label(ax, "a")
     ax.scatter(
         merged["pearson_top20_de_naive_copy"],
         merged["pearson_top20_de_translator"],
-        alpha=0.6,
+        alpha=0.65,
         color="#2B5C8F",
         edgecolors="white",
-        s=45,
+        linewidths=0.5,
+        s=48,
     )
-    ax.plot([0.3, 1.0], [0.3, 1.0], "r--", linewidth=1.5, label="Identity (x = y)")
+    ax.plot([0.3, 1.0], [0.3, 1.0], "r--", linewidth=1.5, label="Identity line ($x = y$)")
     ax.set_xlim(0.3, 1.02)
     ax.set_ylim(0.3, 1.02)
-    ax.set_xlabel("Naive K562 Shift Copy (Top-20 DE $\\rho$)")
+    ax.set_xlabel("Naive K562 shift copy (Top-20 DE $\\rho$)")
     ax.set_ylabel("BioTransferTranslator (Top-20 DE $\\rho$)")
-    ax.set_title("A. Per-Target Pearson Correlation (Unseen Genes, N=308)", fontweight="bold")
-    ax.grid(True, linestyle="--", alpha=0.4)
-    ax.legend(frameon=True)
+    ax.set_title("Per-target Pearson correlation (unseen genes, N=308)", pad=12, fontweight="medium")
+    ax.grid(True, linestyle="--", alpha=0.35)
+    ax.legend(frameon=True, loc="lower right")
 
-    # Panel B: MSE Reduction
+    # Panel b: MSE Reduction
     ax = axes[1]
+    add_panel_label(ax, "b")
     ax.scatter(
         merged["mse_top20_de_naive_copy"],
         merged["mse_top20_de_translator"],
-        alpha=0.6,
+        alpha=0.65,
         color="#D95F02",
         edgecolors="white",
-        s=45,
+        linewidths=0.5,
+        s=48,
     )
     max_val = max(merged["mse_top20_de_naive_copy"].max(), merged["mse_top20_de_translator"].max()) * 1.05
-    ax.plot([0, max_val], [0, max_val], "r--", linewidth=1.5, label="Identity (x = y)")
+    ax.plot([0, max_val], [0, max_val], "r--", linewidth=1.5, label="Identity line ($x = y$)")
     ax.set_xlim(0, max_val)
     ax.set_ylim(0, max_val)
-    ax.set_xlabel("Naive K562 Shift Copy (Top-20 DE MSE)")
+    ax.set_xlabel("Naive K562 shift copy (Top-20 DE MSE)")
     ax.set_ylabel("BioTransferTranslator (Top-20 DE MSE)")
-    ax.set_title("B. Per-Target Mean Squared Error (Unseen Genes, N=308)", fontweight="bold")
-    ax.grid(True, linestyle="--", alpha=0.4)
-    ax.legend(frameon=True)
+    ax.set_title("Per-target mean squared error (unseen genes, N=308)", pad=12, fontweight="medium")
+    ax.grid(True, linestyle="--", alpha=0.35)
+    ax.legend(frameon=True, loc="upper left")
 
     plt.tight_layout()
     out_path = OUT_DIR / "fig2_dual_zero_shot_scatter.png"
@@ -170,7 +184,7 @@ def plot_dual_zero_shot_scatter():
     print(f"Saved: {out_path}")
 
 
-def plot_pathway_conservation():
+def plot_fig3_pathway_conservation():
     """Figure 3: Biological Pathway Divergence & Functional Modularity."""
     from perturb_bench.data.transfer import CrossCellAlignedData
     aligned = CrossCellAlignedData.from_h5ad(cache_path="data/cross_cell_aligned_summary.npz")
@@ -192,7 +206,6 @@ def plot_pathway_conservation():
 
     df = pd.DataFrame(rhos)
 
-    # Assign biological pathways
     def assign_category(gene):
         g = gene.upper()
         if g.startswith(("RPL", "RPS", "MRPL", "MRPS")):
@@ -200,7 +213,7 @@ def plot_pathway_conservation():
         elif g.startswith(("PSMA", "PSMB", "PSMC", "PSMD")):
             return "Proteasome Core"
         elif g.startswith(("POLR", "TBP", "GTF")):
-            return "RNA Polymerase / Transcription"
+            return "RNA Pol / Transcription"
         elif g.startswith(("ACT", "TUB", "MYO", "KIF", "ARPC")):
             return "Cytoskeleton & Spindle"
         elif g in {"TP53", "MDM2", "CDKN1A", "CHEK1", "CHEK2", "ATM", "ATR", "RAD51"}:
@@ -211,14 +224,13 @@ def plot_pathway_conservation():
             return "Other Essential"
 
     df["Pathway"] = df["perturbation"].apply(assign_category)
-
-    # Filter to substantial effect sizes
     df_active = df[df["k562_mag"] > 1.5]
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5.5))
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5.2))
 
-    # Panel A: Cross-Cell Conservation by Pathway
+    # Panel a: Boxplot by Pathway
     ax = axes[0]
+    add_panel_label(ax, "a")
     order = df_active.groupby("Pathway")["cross_cell_rho"].median().sort_values(ascending=False).index
     palette = sns.color_palette("muted", len(order))
 
@@ -227,35 +239,39 @@ def plot_pathway_conservation():
         x="Pathway",
         y="cross_cell_rho",
         order=order,
+        hue="Pathway",
         palette=palette,
+        legend=False,
         ax=ax,
         fliersize=2,
     )
-    ax.set_title("A. Cross-Cell Lineage Transferability by Pathway", fontweight="bold")
-    ax.set_ylabel("K562-RPE1 Response Correlation ($\\rho$)")
+    ax.set_title("Cross-cell lineage transferability by pathway", pad=12, fontweight="medium")
+    ax.set_ylabel("K562-RPE1 response correlation ($\\rho$)")
     ax.set_xlabel("")
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=25, ha="right")
-    ax.grid(axis="y", linestyle="--", alpha=0.4)
+    ax.set_xticks(range(len(order)))
+    ax.set_xticklabels(order, rotation=22, ha="right")
+    ax.grid(axis="y", linestyle="--", alpha=0.35)
 
-    # Panel B: Distribution of Effect Magnitudes
+    # Panel b: Scatter Magnitude
     ax = axes[1]
-    ax.scatter(
+    add_panel_label(ax, "b")
+    sc = ax.scatter(
         df["k562_mag"],
         df["rpe1_mag"],
-        alpha=0.4,
+        alpha=0.45,
         c=df["cross_cell_rho"],
         cmap="coolwarm",
-        s=30,
+        s=32,
         edgecolors="none",
     )
-    cbar = plt.colorbar(ax.collections[0], ax=ax)
-    cbar.set_label("Lineage Correlation ($\\rho$)")
-    ax.plot([0, 25], [0, 25], "k--", alpha=0.5, label="Equal Magnitude")
-    ax.set_xlabel("K562 Differential Shift Norm ($||\\Delta_{\\mathrm{K562}}||_2$)")
-    ax.set_ylabel("RPE1 Differential Shift Norm ($||\\Delta_{\\mathrm{RPE1}}||_2$)")
-    ax.set_title("B. Perturbation Response Magnitude Comparison", fontweight="bold")
-    ax.grid(True, linestyle="--", alpha=0.4)
-    ax.legend(frameon=True)
+    cbar = plt.colorbar(sc, ax=ax)
+    cbar.set_label("Lineage correlation ($\\rho$)")
+    ax.plot([0, 25], [0, 25], "k--", alpha=0.5, label="Equal magnitude ($x = y$)")
+    ax.set_xlabel("K562 differential shift norm ($||\\Delta_{\\mathrm{K562}}||_2$)")
+    ax.set_ylabel("RPE1 differential shift norm ($||\\Delta_{\\mathrm{RPE1}}||_2$)")
+    ax.set_title("Perturbation response magnitude comparison", pad=12, fontweight="medium")
+    ax.grid(True, linestyle="--", alpha=0.35)
+    ax.legend(frameon=True, loc="upper left")
 
     plt.tight_layout()
     out_path = OUT_DIR / "fig3_pathway_conservation_landscape.png"
@@ -264,12 +280,110 @@ def plot_pathway_conservation():
     print(f"Saved: {out_path}")
 
 
+def plot_fig4_multi_dataset_benchmark():
+    """Figure 4: Generalization Across Dixit, Adamson, Norman, K562, and RPE1."""
+    ind_csv = Path("results/all_individual_datasets_summary.csv")
+    cross_csv = Path("results/cross_cell/cross_cell_benchmark_summary.csv")
+
+    if not ind_csv.exists() or not cross_csv.exists():
+        print("Data files for Figure 4 not found.")
+        return
+
+    df_ind = pd.read_csv(ind_csv)
+    df_cross = pd.read_csv(cross_csv)
+
+    # Filter K562 OOD and RPE1 Dual Zero Shot from cross-cell
+    k562_ood = df_cross[df_cross["Scenario"] == "Task_1_K562_OOD_Test"].copy()
+    k562_ood["Dataset"] = "k562_essential"
+    k562_ood["Model"] = k562_ood["Model"].replace({"BioTransferNet (De Novo)": "BioTransferNet (Ours)"})
+
+    # Harmonize columns
+    records = []
+    for _, r in df_ind.iterrows():
+        records.append({
+            "Dataset": r["Dataset"],
+            "Model": r["Model"],
+            "pearson_top20_de": r["Pearson ρ (Top-20 DE)"],
+            "mse_top20_de": r["MSE (Top-20 DE)"],
+        })
+
+    for _, r in k562_ood.iterrows():
+        if r["Model"] in ["Control Mean", "Mean Shift", "BioTransferNet (Ours)"]:
+            records.append({
+                "Dataset": "k562_essential",
+                "Model": r["Model"],
+                "pearson_top20_de": r["pearson_top20_de"],
+                "mse_top20_de": r["mse_top20_de"],
+            })
+
+    df_all = pd.DataFrame(records)
+
+    dataset_order = ["dixit", "adamson", "norman", "k562_essential"]
+    dataset_labels = ["Dixit (TF)\nN=4", "Adamson (UPR)\nN=11", "Norman (Dual)\nN=25", "Replogle K562\nN=308"]
+    ds_map = dict(zip(dataset_order, dataset_labels))
+    df_all["Dataset_Clean"] = df_all["Dataset"].map(ds_map)
+
+    palette = {
+        "Control Mean": "#8E9AA8",
+        "Mean Shift": "#5B84B1",
+        "BioTransferNet (Ours)": "#009E73",
+    }
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5.2))
+
+    # Panel a: Pearson correlation
+    ax = axes[0]
+    add_panel_label(ax, "a")
+    sns.barplot(
+        data=df_all,
+        x="Dataset_Clean",
+        y="pearson_top20_de",
+        hue="Model",
+        palette=palette,
+        ax=ax,
+        edgecolor="black",
+        linewidth=0.7,
+    )
+    ax.set_title("Hold-out unseen gene prediction correlation across datasets", pad=12, fontweight="medium")
+    ax.set_ylabel("Top-20 DE Pearson correlation ($\\rho$)")
+    ax.set_xlabel("")
+    ax.set_ylim(0.78, 1.01)
+    ax.grid(axis="y", linestyle="--", alpha=0.35)
+    ax.legend(title="Method", frameon=True, facecolor="white", framealpha=0.9, loc="lower left")
+
+    # Panel b: MSE
+    ax = axes[1]
+    add_panel_label(ax, "b")
+    sns.barplot(
+        data=df_all,
+        x="Dataset_Clean",
+        y="mse_top20_de",
+        hue="Model",
+        palette=palette,
+        ax=ax,
+        edgecolor="black",
+        linewidth=0.7,
+    )
+    ax.set_title("Hold-out unseen gene prediction MSE across datasets", pad=12, fontweight="medium")
+    ax.set_ylabel("Top-20 DE mean squared error (MSE)")
+    ax.set_xlabel("")
+    ax.grid(axis="y", linestyle="--", alpha=0.35)
+    ax.legend().remove()
+
+    plt.tight_layout()
+    out_path = OUT_DIR / "fig4_multi_dataset_benchmark.png"
+    plt.savefig(out_path)
+    plt.close()
+    print(f"Saved: {out_path}")
+
+
 def main():
-    print("Generating publication-ready figures...")
-    plot_benchmark_performance()
-    plot_dual_zero_shot_scatter()
-    plot_pathway_conservation()
-    print("All figures successfully created in results/paper_figures/")
+    print("Generating all publication-ready figures with strict Nature styling ('a', 'b', 'c')...")
+    plot_fig1_benchmark_performance()
+    plot_fig2_dual_zero_shot_scatter()
+    plot_fig3_pathway_conservation()
+    plot_fig4_multi_dataset_benchmark()
+    print("All figures successfully created in results/paper_figures/!")
 
 
 if __name__ == "__main__":
