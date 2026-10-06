@@ -56,63 +56,120 @@ def plot_fig1_benchmark_performance():
 
     df = pd.read_csv(csv_path)
 
-    scenario_map = {
-        "Task_1_K562_OOD_Test": "Task 1: K562 Unseen OOD\nKnockouts (N=308)",
-        "Task_2_RPE1_Transfer_TrainPerts": "Task 2: RPE1 Transfer of\nScreened Genes (N=1,542)",
-        "Task_3_RPE1_Dual_ZeroShot_TestPerts": "Task 3: Dual Zero-Shot\nRPE1 Unseen Genes (N=308)",
+    scenarios = [
+        "Task_1_K562_OOD_Test",
+        "Task_2_RPE1_Transfer_TrainPerts",
+        "Task_3_RPE1_Dual_ZeroShot_TestPerts",
+    ]
+    scenario_labels = [
+        "Task 1: K562 Unseen OOD\nKnockouts (N=308)",
+        "Task 2: RPE1 Transfer of\nScreened Genes (N=1,542)",
+        "Task 3: Dual Zero-Shot\nRPE1 Unseen Genes (N=308)",
+    ]
+
+    model_display_map = {
+        "Control Mean": "Control Mean",
+        "Mean Shift": "Mean Shift",
+        "BioTransferNet (De Novo)": "BioTransferNet (Ours)",
+        "Naive K562 Shift Copy": "Naive Shift Copy",
+        "BioTransferTranslator (Screen Translation)": "BioTransferTranslator (Ours)",
     }
-    df["Scenario_Clean"] = df["Scenario"].map(scenario_map)
+    df["Model_Clean"] = df["Model"].map(model_display_map)
+
+    all_models = [
+        "Control Mean",
+        "Mean Shift",
+        "BioTransferNet (Ours)",
+        "Naive Shift Copy",
+        "BioTransferTranslator (Ours)",
+    ]
 
     palette = {
         "Control Mean": "#8E9AA8",
         "Mean Shift": "#5B84B1",
-        "Naive K562 Shift Copy": "#E69F00",
-        "BioTransferNet (De Novo)": "#009E73",
-        "BioTransferTranslator (Screen Translation)": "#D55E00",
+        "BioTransferNet (Ours)": "#009E73",
+        "Naive Shift Copy": "#E69F00",
+        "BioTransferTranslator (Ours)": "#D55E00",
     }
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5.2))
+    models_per_task = {
+        "Task_1_K562_OOD_Test": ["Control Mean", "Mean Shift", "BioTransferNet (Ours)"],
+        "Task_2_RPE1_Transfer_TrainPerts": [
+            "Control Mean",
+            "Mean Shift",
+            "BioTransferNet (Ours)",
+            "Naive Shift Copy",
+            "BioTransferTranslator (Ours)",
+        ],
+        "Task_3_RPE1_Dual_ZeroShot_TestPerts": [
+            "Control Mean",
+            "Mean Shift",
+            "BioTransferNet (Ours)",
+            "Naive Shift Copy",
+            "BioTransferTranslator (Ours)",
+        ],
+    }
 
-    # Panel a: Pearson Correlation
-    ax = axes[0]
-    add_panel_label(ax, "a")
-    sns.barplot(
-        data=df,
-        x="Scenario_Clean",
-        y="pearson_top20_de",
-        hue="Model",
-        palette=palette,
-        ax=ax,
-        edgecolor="black",
-        linewidth=0.7,
+    bar_width = 0.135
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6.0))
+
+    metrics = [
+        ("pearson_top20_de", "Top-20 DE genes Pearson correlation", "Pearson correlation ($\\rho$)", (0.75, 1.01)),
+        ("mse_top20_de", "Top-20 DE genes mean squared error", "Mean squared error (MSE)", (0.0, 0.58)),
+    ]
+
+    for ax_idx, (col, title, ylabel, ylim) in enumerate(metrics):
+        ax = axes[ax_idx]
+        add_panel_label(ax, "a" if ax_idx == 0 else "b", x=-0.08, y=1.06)
+
+        for s_idx, s_key in enumerate(scenarios):
+            m_list = models_per_task[s_key]
+            n_bars = len(m_list)
+            offsets = (np.arange(n_bars) - (n_bars - 1) / 2) * (bar_width + 0.01)
+
+            sub_df = df[df["Scenario"] == s_key].set_index("Model_Clean")
+            for m_i, m_name in enumerate(m_list):
+                if m_name in sub_df.index:
+                    val = float(sub_df.loc[m_name, col])
+                    ax.bar(
+                        s_idx + offsets[m_i],
+                        val,
+                        width=bar_width,
+                        color=palette[m_name],
+                        edgecolor="black",
+                        linewidth=0.7,
+                    )
+
+        ax.set_xticks(range(len(scenarios)))
+        ax.set_xticklabels(scenario_labels)
+        ax.set_ylabel(ylabel)
+        ax.set_title(title, pad=12, fontweight="medium")
+        ax.set_ylim(ylim)
+        ax.grid(axis="y", linestyle="--", alpha=0.35)
+
+    legend_elements = [
+        plt.Rectangle((0, 0), 1, 1, facecolor=palette[m], edgecolor="black", linewidth=0.7, label=m)
+        for m in all_models
+    ]
+
+    fig.legend(
+        handles=legend_elements,
+        labels=all_models,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.98),
+        ncol=5,
+        frameon=True,
+        facecolor="white",
+        edgecolor="#C0C0C0",
+        framealpha=1.0,
+        fontsize=11,
+        handlelength=1.4,
+        handleheight=0.9,
+        columnspacing=1.6,
+        borderpad=0.5,
     )
-    ax.set_title("Top-20 DE genes Pearson correlation", pad=12, fontweight="medium")
-    ax.set_ylabel("Pearson correlation ($\\rho$)")
-    ax.set_xlabel("")
-    ax.set_ylim(0.75, 1.01)
-    ax.grid(axis="y", linestyle="--", alpha=0.35)
-    ax.legend(title="Method", frameon=True, facecolor="white", framealpha=0.9, loc="lower left")
 
-    # Panel b: Mean Squared Error
-    ax = axes[1]
-    add_panel_label(ax, "b")
-    sns.barplot(
-        data=df,
-        x="Scenario_Clean",
-        y="mse_top20_de",
-        hue="Model",
-        palette=palette,
-        ax=ax,
-        edgecolor="black",
-        linewidth=0.7,
-    )
-    ax.set_title("Top-20 DE genes mean squared error", pad=12, fontweight="medium")
-    ax.set_ylabel("Mean squared error (MSE)")
-    ax.set_xlabel("")
-    ax.grid(axis="y", linestyle="--", alpha=0.35)
-    ax.legend().remove()
-
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0, 1, 0.88])
     out_path = OUT_DIR / "fig1_benchmark_performance.png"
     plt.savefig(out_path)
     plt.close()
@@ -303,8 +360,8 @@ def plot_fig4_multi_dataset_benchmark():
         records.append({
             "Dataset": r["Dataset"],
             "Model": r["Model"],
-            "pearson_top20_de": r["Pearson ρ (Top-20 DE)"],
-            "mse_top20_de": r["MSE (Top-20 DE)"],
+            "pearson_top20_de": float(r["Pearson ρ (Top-20 DE)"]),
+            "mse_top20_de": float(r["MSE (Top-20 DE)"]),
         })
 
     for _, r in k562_ood.iterrows():
@@ -312,16 +369,15 @@ def plot_fig4_multi_dataset_benchmark():
             records.append({
                 "Dataset": "k562_essential",
                 "Model": r["Model"],
-                "pearson_top20_de": r["pearson_top20_de"],
-                "mse_top20_de": r["mse_top20_de"],
+                "pearson_top20_de": float(r["pearson_top20_de"]),
+                "mse_top20_de": float(r["mse_top20_de"]),
             })
 
     df_all = pd.DataFrame(records)
 
     dataset_order = ["dixit", "adamson", "norman", "k562_essential"]
     dataset_labels = ["Dixit (TF)\nN=4", "Adamson (UPR)\nN=11", "Norman (Dual)\nN=25", "Replogle K562\nN=308"]
-    ds_map = dict(zip(dataset_order, dataset_labels))
-    df_all["Dataset_Clean"] = df_all["Dataset"].map(ds_map)
+    models = ["Control Mean", "Mean Shift", "BioTransferNet (Ours)"]
 
     palette = {
         "Control Mean": "#8E9AA8",
@@ -329,48 +385,64 @@ def plot_fig4_multi_dataset_benchmark():
         "BioTransferNet (Ours)": "#009E73",
     }
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5.2))
+    bar_width = 0.22
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6.0))
 
-    # Panel a: Pearson correlation
-    ax = axes[0]
-    add_panel_label(ax, "a")
-    sns.barplot(
-        data=df_all,
-        x="Dataset_Clean",
-        y="pearson_top20_de",
-        hue="Model",
-        palette=palette,
-        ax=ax,
-        edgecolor="black",
-        linewidth=0.7,
+    metrics = [
+        ("pearson_top20_de", "Hold-out unseen gene prediction correlation across datasets", "Top-20 DE Pearson correlation ($\\rho$)", (0.78, 1.01)),
+        ("mse_top20_de", "Hold-out unseen gene prediction MSE across datasets", "Top-20 DE mean squared error (MSE)", (0.0, 0.52)),
+    ]
+
+    for ax_idx, (col, title, ylabel, ylim) in enumerate(metrics):
+        ax = axes[ax_idx]
+        add_panel_label(ax, "a" if ax_idx == 0 else "b", x=-0.08, y=1.06)
+
+        offsets = (np.arange(len(models)) - (len(models) - 1) / 2) * (bar_width + 0.02)
+
+        for d_idx, ds in enumerate(dataset_order):
+            sub_df = df_all[df_all["Dataset"] == ds].set_index("Model")
+            for m_i, m_name in enumerate(models):
+                if m_name in sub_df.index:
+                    val = float(sub_df.loc[m_name, col])
+                    ax.bar(
+                        d_idx + offsets[m_i],
+                        val,
+                        width=bar_width,
+                        color=palette[m_name],
+                        edgecolor="black",
+                        linewidth=0.7,
+                    )
+
+        ax.set_xticks(range(len(dataset_order)))
+        ax.set_xticklabels(dataset_labels)
+        ax.set_ylabel(ylabel)
+        ax.set_title(title, pad=12, fontweight="medium")
+        ax.set_ylim(ylim)
+        ax.grid(axis="y", linestyle="--", alpha=0.35)
+
+    legend_elements = [
+        plt.Rectangle((0, 0), 1, 1, facecolor=palette[m], edgecolor="black", linewidth=0.7, label=m)
+        for m in models
+    ]
+
+    fig.legend(
+        handles=legend_elements,
+        labels=models,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.98),
+        ncol=3,
+        frameon=True,
+        facecolor="white",
+        edgecolor="#C0C0C0",
+        framealpha=1.0,
+        fontsize=11.5,
+        handlelength=1.5,
+        handleheight=0.9,
+        columnspacing=2.5,
+        borderpad=0.5,
     )
-    ax.set_title("Hold-out unseen gene prediction correlation across datasets", pad=12, fontweight="medium")
-    ax.set_ylabel("Top-20 DE Pearson correlation ($\\rho$)")
-    ax.set_xlabel("")
-    ax.set_ylim(0.78, 1.01)
-    ax.grid(axis="y", linestyle="--", alpha=0.35)
-    ax.legend(title="Method", frameon=True, facecolor="white", framealpha=0.9, loc="lower left")
 
-    # Panel b: MSE
-    ax = axes[1]
-    add_panel_label(ax, "b")
-    sns.barplot(
-        data=df_all,
-        x="Dataset_Clean",
-        y="mse_top20_de",
-        hue="Model",
-        palette=palette,
-        ax=ax,
-        edgecolor="black",
-        linewidth=0.7,
-    )
-    ax.set_title("Hold-out unseen gene prediction MSE across datasets", pad=12, fontweight="medium")
-    ax.set_ylabel("Top-20 DE mean squared error (MSE)")
-    ax.set_xlabel("")
-    ax.grid(axis="y", linestyle="--", alpha=0.35)
-    ax.legend().remove()
-
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0, 1, 0.88])
     out_path = OUT_DIR / "fig4_multi_dataset_benchmark.png"
     plt.savefig(out_path)
     plt.close()
