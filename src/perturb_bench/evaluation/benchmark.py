@@ -7,7 +7,7 @@ from perturb_bench.evaluation.metrics import (
     evaluate_perturbation,
     extract_top20_de_indices,
 )
-from perturb_bench.data.loader import get_control_mean
+from perturb_bench.data.loader import get_control_mean, compute_group_means
 
 
 class BenchmarkHarness:
@@ -36,15 +36,23 @@ class BenchmarkHarness:
         if not self.test_perts:
             raise ValueError("No hold-out perturbations found in split == 'test' (excluding controls).")
 
-        # 3. Precompute empirical mean profile and Top-20 DE genes for each test target
+        # 3. Vectorized precomputation of empirical test profiles
+        ctrl_mask_arr = adata.obs["is_control"].astype(bool).values
+        test_mask = (adata.obs["split"] == "test").values & (~ctrl_mask_arr)
+        test_X = adata.X[test_mask]
+        test_pert_labels = adata.obs.loc[test_mask, "perturbation"].values
+
+        unique_perts, pert_means = compute_group_means(
+            test_X, test_pert_labels, unique_groups=self.test_perts
+        )
+        pert_counts = pd.Series(test_pert_labels).value_counts().to_dict()
+
         self.ground_truth: Dict[str, Dict[str, Any]] = {}
-        for p in self.test_perts:
-            p_cells = adata[(adata.obs["perturbation"] == p) & (adata.obs["split"] == "test")]
-            p_mean = np.asarray(p_cells.X.mean(axis=0)).ravel()
+        for p, p_mean in zip(unique_perts, pert_means):
             top20_idx = extract_top20_de_indices(p_mean, self.control_mean, n_top=20)
             self.ground_truth[p] = {
                 "mean_profile": p_mean,
-                "n_cells": p_cells.n_obs,
+                "n_cells": pert_counts.get(p, 0),
                 "top20_de_idx": top20_idx,
             }
 

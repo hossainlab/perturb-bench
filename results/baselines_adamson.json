@@ -1,0 +1,20 @@
+[
+  {
+    "Dataset":"adamson",
+    "Model":"Control Mean",
+    "Pearson \u03c1 (All)":0.9960611515,
+    "MSE (All)":0.0008128211,
+    "Pearson \u03c1 (Top-20 DE)":0.9072487244,
+    "MSE (Top-20 DE)":0.1204210752,
+    "N Test Targets":11
+  },
+  {
+    "Dataset":"adamson",
+    "Model":"Mean Shift",
+    "Pearson \u03c1 (All)":0.9963932872,
+    "MSE (All)":0.0007283322,
+    "Pearson \u03c1 (Top-20 DE)":0.9275088672,
+    "MSE (Top-20 DE)":0.084448526,
+    "N Test Targets":11
+  }
+]

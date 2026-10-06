@@ -2,7 +2,7 @@
 from typing import Dict, Optional
 import numpy as np
 import anndata as ad
-from perturb_bench.data.loader import get_control_mean
+from perturb_bench.data.loader import get_control_mean, compute_group_means
 
 
 class ControlMeanPredictor:
@@ -42,19 +42,16 @@ class MeanShiftPredictor:
         self.control_mean = get_control_mean(adata)
 
         # Compute shift for every training perturbation
-        ctrl_mask = adata.obs["is_control"].astype(bool)
-        train_obs = adata.obs.loc[(adata.obs["split"] == "train") & (~ctrl_mask)]
-        train_perts = sorted(list(train_obs["perturbation"].unique()))
+        ctrl_mask = adata.obs["is_control"].astype(bool).values
+        train_mask = (adata.obs["split"] == "train").values & (~ctrl_mask)
+        sub_X = adata.X[train_mask]
+        sub_perts = adata.obs.loc[train_mask, "perturbation"].values
 
-        if not train_perts:
+        if len(sub_perts) == 0:
             raise ValueError("No non-control training perturbations found in split == 'train'.")
 
-        shifts = []
-        for p in train_perts:
-            sub = adata[(adata.obs["perturbation"] == p) & (adata.obs["split"] == "train")]
-            p_mean = np.asarray(sub.X.mean(axis=0)).ravel()
-            shifts.append(p_mean - self.control_mean)
-
+        _, group_means = compute_group_means(sub_X, sub_perts)
+        shifts = group_means - self.control_mean
         self.mean_shift = np.mean(shifts, axis=0)
         return self
 

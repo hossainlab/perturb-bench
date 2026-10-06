@@ -1,0 +1,20 @@
+[
+  {
+    "Dataset":"replogle_k562_gwps",
+    "Model":"Control Mean",
+    "Pearson \u03c1 (All)":0.9886730625,
+    "MSE (All)":0.0064509925,
+    "Pearson \u03c1 (Top-20 DE)":0.8032315996,
+    "MSE (Top-20 DE)":0.1304810896,
+    "N Test Targets":986
+  },
+  {
+    "Dataset":"replogle_k562_gwps",
+    "Model":"Mean Shift",
+    "Pearson \u03c1 (All)":0.9887136221,
+    "MSE (All)":0.006425216,
+    "Pearson \u03c1 (Top-20 DE)":0.8042928799,
+    "MSE (Top-20 DE)":0.1283635845,
+    "N Test Targets":986
+  }
+]

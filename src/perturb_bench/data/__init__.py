@@ -2,6 +2,7 @@
 from perturb_bench.data.loader import (
     load_dataset,
     get_control_mean,
+    compute_group_means,
     list_available_datasets,
     resolve_dataset_path,
 )
@@ -13,6 +14,7 @@ from perturb_bench.data.dataset import (
 __all__ = [
     "load_dataset",
     "get_control_mean",
+    "compute_group_means",
     "list_available_datasets",
     "resolve_dataset_path",
     "PerturbationDataset",

@@ -1,0 +1,119 @@
+[
+  {
+    "Scenario":"Task_1_K562_OOD_Test",
+    "Model":"Control Mean",
+    "pearson_top20_de":0.9053309639,
+    "mse_top20_de":0.1472037105,
+    "pearson_all":0.9934462439,
+    "mse_all":0.0040236144,
+    "n_perturbations":308
+  },
+  {
+    "Scenario":"Task_1_K562_OOD_Test",
+    "Model":"Mean Shift",
+    "pearson_top20_de":0.9110381604,
+    "mse_top20_de":0.1308412969,
+    "pearson_all":0.9938447607,
+    "mse_all":0.0037432491,
+    "n_perturbations":308
+  },
+  {
+    "Scenario":"Task_1_K562_OOD_Test",
+    "Model":"BioTransferNet (De Novo)",
+    "pearson_top20_de":0.9162303527,
+    "mse_top20_de":0.1147650674,
+    "pearson_all":0.9938126071,
+    "mse_all":0.003736413,
+    "n_perturbations":308
+  },
+  {
+    "Scenario":"Task_2_RPE1_Transfer_TrainPerts",
+    "Model":"Control Mean",
+    "pearson_top20_de":0.8152002686,
+    "mse_top20_de":0.5502468351,
+    "pearson_all":0.9798639705,
+    "mse_all":0.0120955066,
+    "n_perturbations":1542
+  },
+  {
+    "Scenario":"Task_2_RPE1_Transfer_TrainPerts",
+    "Model":"Mean Shift",
+    "pearson_top20_de":0.827112573,
+    "mse_top20_de":0.5008958449,
+    "pearson_all":0.9812103014,
+    "mse_all":0.0111673153,
+    "n_perturbations":1542
+  },
+  {
+    "Scenario":"Task_2_RPE1_Transfer_TrainPerts",
+    "Model":"Naive K562 Shift Copy",
+    "pearson_top20_de":0.8616785722,
+    "mse_top20_de":0.3971188279,
+    "pearson_all":0.9794122614,
+    "mse_all":0.0122671935,
+    "n_perturbations":1542
+  },
+  {
+    "Scenario":"Task_2_RPE1_Transfer_TrainPerts",
+    "Model":"BioTransferNet (De Novo)",
+    "pearson_top20_de":0.8429068795,
+    "mse_top20_de":0.4554022673,
+    "pearson_all":0.9815616345,
+    "mse_all":0.0109928241,
+    "n_perturbations":1542
+  },
+  {
+    "Scenario":"Task_2_RPE1_Transfer_TrainPerts",
+    "Model":"BioTransferTranslator (Screen Translation)",
+    "pearson_top20_de":0.9922300133,
+    "mse_top20_de":0.0100431008,
+    "pearson_all":0.9965012835,
+    "mse_all":0.0020124779,
+    "n_perturbations":1542
+  },
+  {
+    "Scenario":"Task_3_RPE1_Dual_ZeroShot_TestPerts",
+    "Model":"Control Mean",
+    "pearson_top20_de":0.8127335649,
+    "mse_top20_de":0.5300745586,
+    "pearson_all":0.980317712,
+    "mse_all":0.0118049493,
+    "n_perturbations":308
+  },
+  {
+    "Scenario":"Task_3_RPE1_Dual_ZeroShot_TestPerts",
+    "Model":"Mean Shift",
+    "pearson_top20_de":0.8239983809,
+    "mse_top20_de":0.4838320321,
+    "pearson_all":0.9815580764,
+    "mse_all":0.0109465264,
+    "n_perturbations":308
+  },
+  {
+    "Scenario":"Task_3_RPE1_Dual_ZeroShot_TestPerts",
+    "Model":"Naive K562 Shift Copy",
+    "pearson_top20_de":0.861259844,
+    "mse_top20_de":0.381718975,
+    "pearson_all":0.9793894306,
+    "mse_all":0.012308863,
+    "n_perturbations":308
+  },
+  {
+    "Scenario":"Task_3_RPE1_Dual_ZeroShot_TestPerts",
+    "Model":"BioTransferNet (De Novo)",
+    "pearson_top20_de":0.8299448239,
+    "mse_top20_de":0.4668966248,
+    "pearson_all":0.9812468793,
+    "mse_all":0.0112095501,
+    "n_perturbations":308
+  },
+  {
+    "Scenario":"Task_3_RPE1_Dual_ZeroShot_TestPerts",
+    "Model":"BioTransferTranslator (Screen Translation)",
+    "pearson_top20_de":0.9426310538,
+    "mse_top20_de":0.1151787275,
+    "pearson_all":0.9866421275,
+    "mse_all":0.0078532049,
+    "n_perturbations":308
+  }
+]

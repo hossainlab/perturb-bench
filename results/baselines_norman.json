@@ -1,0 +1,20 @@
+[
+  {
+    "Dataset":"norman",
+    "Model":"Control Mean",
+    "Pearson \u03c1 (All)":0.9912453795,
+    "MSE (All)":0.0016783124,
+    "Pearson \u03c1 (Top-20 DE)":0.8303859223,
+    "MSE (Top-20 DE)":0.4761987471,
+    "N Test Targets":25
+  },
+  {
+    "Dataset":"norman",
+    "Model":"Mean Shift",
+    "Pearson \u03c1 (All)":0.9940744968,
+    "MSE (All)":0.0010565413,
+    "Pearson \u03c1 (Top-20 DE)":0.8788000413,
+    "MSE (Top-20 DE)":0.3382493138,
+    "N Test Targets":25
+  }
+]

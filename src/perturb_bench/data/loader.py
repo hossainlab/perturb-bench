@@ -1,7 +1,8 @@
 """Dataset loading and harmonization utilities with audit fixes."""
 from pathlib import Path
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Tuple
 import numpy as np
+import scipy.sparse as sp
 import anndata as ad
 
 
@@ -124,3 +125,53 @@ def list_available_datasets(data_dir: Optional[Union[str, Path]] = None) -> List
         if (base_dir / fname).is_file():
             available.append(alias)
     return available
+
+
+def compute_group_means(
+    X: Union[sp.spmatrix, np.ndarray],
+    group_labels: np.ndarray,
+    unique_groups: Optional[List[str]] = None,
+) -> Tuple[List[str], np.ndarray]:
+    """Efficiently compute per-perturbation mean profiles via matrix multiplication.
+
+    Parameters
+    ----------
+    X : sp.spmatrix or np.ndarray
+        Expression matrix of shape (n_cells, n_genes).
+    group_labels : np.ndarray
+        Array of perturbation labels for each cell.
+    unique_groups : list of str, optional
+        Explicit ordering of unique perturbation names.
+
+    Returns
+    -------
+    unique_groups : list of str
+        The unique perturbation names corresponding to rows in `means`.
+    means : np.ndarray
+        Dense matrix of shape (len(unique_groups), n_genes).
+    """
+    import scipy.sparse as sp
+
+    if unique_groups is None:
+        unique_groups = sorted(list(set(group_labels)))
+    group_to_idx = {g: i for i, g in enumerate(unique_groups)}
+    idx_array = np.array([group_to_idx.get(g, -1) for g in group_labels])
+    valid_mask = idx_array >= 0
+
+    if not np.all(valid_mask):
+        X = X[valid_mask]
+        idx_array = idx_array[valid_mask]
+
+    K = len(unique_groups)
+    N = X.shape[0]
+    counts = np.bincount(idx_array, minlength=K)
+
+    weights = np.zeros(len(idx_array), dtype=np.float32)
+    non_empty = counts[idx_array] > 0
+    weights[non_empty] = 1.0 / counts[idx_array][non_empty]
+
+    M = sp.csr_matrix((weights, (idx_array, np.arange(N))), shape=(K, N), dtype=np.float32)
+    means = M @ X
+    if sp.issparse(means):
+        means = means.toarray()
+    return unique_groups, np.asarray(means)

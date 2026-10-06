@@ -1,0 +1,20 @@
+[
+  {
+    "Dataset":"replogle_rpe1",
+    "Model":"Control Mean",
+    "Pearson \u03c1 (All)":0.9782737337,
+    "MSE (All)":0.0117484003,
+    "Pearson \u03c1 (Top-20 DE)":0.7330852738,
+    "MSE (Top-20 DE)":0.6099477072,
+    "N Test Targets":240
+  },
+  {
+    "Dataset":"replogle_rpe1",
+    "Model":"Mean Shift",
+    "Pearson \u03c1 (All)":0.9842859219,
+    "MSE (All)":0.0084168963,
+    "Pearson \u03c1 (Top-20 DE)":0.8427406149,
+    "MSE (Top-20 DE)":0.3381481142,
+    "N Test Targets":240
+  }
+]
